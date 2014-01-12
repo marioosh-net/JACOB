@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Scanner;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
@@ -47,6 +48,7 @@ public class Main {
         }		
         
         System.out.println("UUID by cscript: "+getComputerSystemProductUUID());
+        System.out.println("UUID by wmic: "+getByWMIC(csproductUUID));
 	}
 	
 	private static void loadJacobLib() {
@@ -105,6 +107,22 @@ public class Main {
 		out.close();
 		return resource.getAbsolutePath();
 	}
+	
+	private static final String[] csproductUUID = new String[] { "wmic", "csproduct", "get", "uuid" };
+	
+	private static String getByWMIC(String[] command) {
+		try {
+		    Process process = Runtime.getRuntime().exec(command);
+	        process.getOutputStream().close();
+	        Scanner sc = new Scanner(process.getInputStream()).useDelimiter("\n");
+	        String property = sc.next();
+	        String serial = sc.next();
+	        return serial.trim();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
 
 }
 
