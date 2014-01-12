@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.UUID;
@@ -18,14 +19,18 @@ import com.jacob.com.Variant;
 
 public class Main {
 
+	static {
+		loadJacobLib();
+	}
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) {		
 		new Main();
 	}
 	
 	public Main() {
+		
 	    ComThread.InitMTA();
         try {
             ActiveXComponent wmi = new ActiveXComponent("winmgmts:\\\\.");
@@ -44,6 +49,26 @@ public class Main {
         System.out.println("UUID by cscript: "+getComputerSystemProductUUID());
 	}
 	
+	private static void loadJacobLib() {
+		try {
+			InputStream in = Main.class.getClassLoader().getResourceAsStream("jacob-1.14.3-x86.dll");
+		    byte[] buffer = new byte[1024];
+		    int read = -1;
+		    File temp = File.createTempFile("jacob-1.14.3-x86", ".dll");
+		    temp.deleteOnExit();
+		    FileOutputStream fos = new FileOutputStream(temp);
+		    while((read = in.read(buffer)) != -1) {
+		        fos.write(buffer, 0, read);
+		    }
+		    fos.close();
+		    in.close();	
+		    System.setProperty("jacob.dll.path", temp.getAbsolutePath());
+		    // System.load(temp.getAbsolutePath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public String getComputerSystemProductUUID() {
 		try {
 			String result = "";
